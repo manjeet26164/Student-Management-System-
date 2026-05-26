@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # University ERP Portal (MERN)
 
 A complete full-stack university ERP portal with role-based modules for Student, Faculty, and Admin.
@@ -105,3 +106,6 @@ Open: `http://localhost:5173`
 
 - Frontend build successful (`npm run build` in `client`)
 - Backend app module syntax validated (`node -e "require('./src/app')"` in `server`)
+=======
+# Student-Management-System-
+>>>>>>> 65bfe5eb3ad822345e29652344fef94873f33c2c
