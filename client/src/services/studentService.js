@@ -45,3 +45,4 @@ export const uploadStudentDocument = async (docType, file) => {
   });
   return data;
 };
+export const fetchAiInsights = async () => (await api.get("/student/ai/insights")).data;

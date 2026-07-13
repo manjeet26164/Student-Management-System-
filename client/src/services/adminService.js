@@ -19,3 +19,4 @@ export const removeSubject = async (id) => (await api.delete(`/admin/subjects/${
 export const uploadMarksByAdmin = async (payload) => (await api.post("/admin/marks", payload)).data;
 export const updateAttendanceByAdmin = async (payload) => (await api.post("/admin/attendance", payload)).data;
 export const updateFeeByAdmin = async (payload) => (await api.post("/admin/fees", payload)).data;
+export const aiQueryStudents = async (query) => (await api.post("/admin/ai/query", { query })).data;
