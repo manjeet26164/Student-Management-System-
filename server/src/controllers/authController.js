@@ -4,10 +4,6 @@ const generateToken = require("../utils/generateToken");
 const login = async (req, res) => {
   const { identifier, password, role } = req.body;
 
-  if (!identifier || !password || !role) {
-    return res.status(400).json({ message: "Identifier, password, and role are required" });
-  }
-
   const query = identifier.includes("@")
     ? { email: identifier.toLowerCase() }
     : { universityId: identifier };
@@ -28,8 +24,14 @@ const login = async (req, res) => {
 
   const token = generateToken(user._id, user.role);
 
+  res.cookie("erp_token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days, keep in sync with JWT_EXPIRES_IN
+  });
+
   return res.json({
-    token,
     user: {
       id: user._id,
       fullName: user.fullName,
@@ -40,24 +42,17 @@ const login = async (req, res) => {
   });
 };
 
+const logout = (req, res) => {
+  res.clearCookie("erp_token");
+  return res.json({ message: "Logged out" });
+};
+
 const getMe = async (req, res) => {
   return res.json({ user: req.user });
 };
 
 const changePassword = async (req, res) => {
-  const { currentPassword, newPassword, confirmPassword } = req.body;
-
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    return res.status(400).json({ message: "All password fields are required" });
-  }
-
-  if (newPassword.length < 8) {
-    return res.status(400).json({ message: "New password must be at least 8 characters" });
-  }
-
-  if (newPassword !== confirmPassword) {
-    return res.status(400).json({ message: "New password and confirm password do not match" });
-  }
+  const { currentPassword, newPassword } = req.body;
 
   const user = await User.findById(req.user._id);
   const isCurrentCorrect = await user.matchPassword(currentPassword);
@@ -72,4 +67,4 @@ const changePassword = async (req, res) => {
   return res.json({ message: "Password changed successfully" });
 };
 
-module.exports = { login, getMe, changePassword };
+module.exports = { login, getMe, changePassword, logout };

@@ -68,8 +68,23 @@ const buildStudentPayload = (body) => {
 };
 
 const getStudents = async (req, res) => {
-  const students = await Student.find().populate("user", "fullName email universityId").sort({ createdAt: -1 });
-  return res.json(students);
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
+  const skip = (page - 1) * limit;
+
+  const [students, total] = await Promise.all([
+    Student.find()
+      .populate("user", "fullName email universityId")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Student.countDocuments(),
+  ]);
+
+  return res.json({
+    students,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
 };
 
 const addStudent = async (req, res) => {
