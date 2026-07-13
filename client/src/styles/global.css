@@ -946,3 +946,37 @@ select {
     grid-template-columns: 1fr;
   }
 }
+
+/* AI feature styling */
+.risk-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.risk-low {
+  background: rgba(100, 187, 138, 0.15);
+  color: var(--success);
+}
+.risk-medium {
+  background: rgba(212, 177, 106, 0.15);
+  color: var(--accent);
+}
+.risk-high {
+  background: rgba(207, 93, 88, 0.15);
+  color: var(--danger);
+}
+.ai-results table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+}
+.ai-results th,
+.ai-results td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}

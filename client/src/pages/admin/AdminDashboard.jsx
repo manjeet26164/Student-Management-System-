@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import StatCard from "../../components/StatCard";
+import AiSearchPanel from "../../components/AiSearchPanel";
 import { fetchStudents, fetchSubjects } from "../../services/adminService";
 
 const AdminDashboard = () => {
@@ -33,6 +34,7 @@ const AdminDashboard = () => {
         <StatCard label="Branches" value={stats.branches} />
         <StatCard label="Active Semesters" value={stats.semesters} />
       </section>
+      <AiSearchPanel />
     </div>
   );
 };

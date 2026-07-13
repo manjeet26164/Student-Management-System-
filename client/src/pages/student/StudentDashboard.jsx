@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import StatCard from "../../components/StatCard";
+import AiInsightsCard from "../../components/AiInsightsCard";
 import { fetchStudentDashboard } from "../../services/studentService";
 
 const StudentDashboard = () => {
@@ -37,6 +38,8 @@ const StudentDashboard = () => {
         <StatCard label="Total Credits" value={data.summary.totalCredits} />
         <StatCard label="Backlogs" value={data.summary.backlogs} />
       </section>
+
+      <AiInsightsCard />
 
       <section className="panel">
         <h3>Subject Attendance</h3>
