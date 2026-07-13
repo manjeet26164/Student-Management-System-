@@ -1,4 +1,5 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const {
   getStudents,
   addStudent,
@@ -16,9 +17,13 @@ const {
   updateAttendance,
   updateFee,
 } = require("../controllers/adminController");
+const { aiQueryStudents } = require("../controllers/aiController");
 const { protect, authorize } = require("../middleware/authMiddleware");
 
 const router = express.Router();
+
+// AI calls cost money and are slower — cap at 10/hour per admin
+const aiLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10 });
 
 router.use(protect, authorize("admin"));
 
@@ -40,5 +45,7 @@ router.delete("/subjects/:id", deleteSubject);
 router.post("/marks", uploadMarks);
 router.post("/attendance", updateAttendance);
 router.post("/fees", updateFee);
+
+router.post("/ai/query", aiLimiter, aiQueryStudents);
 
 module.exports = router;
