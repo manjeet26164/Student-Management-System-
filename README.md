@@ -1,39 +1,44 @@
-<<<<<<< HEAD
 # University ERP Portal (MERN)
 
-A complete full-stack university ERP portal with role-based modules for Student, Faculty, and Admin.
+A full-stack university ERP portal with role-based modules for Student, Faculty, and Admin.
 
 ## Tech Stack
 
-- Frontend: React + React Router + Axios + plain CSS
-- Backend: Node.js + Express + JWT + bcrypt
-- Database: MongoDB + Mongoose
+- **Frontend**: React, React Router, Axios
+- **Backend**: Node.js, Express, JWT (httpOnly cookie auth), bcrypt
+- **Database**: MongoDB, Mongoose
+- **Security**: Helmet, rate limiting on auth routes, Zod input validation
+
+## Features
+
+- Role-based login (Student / Faculty / Admin) with JWT stored in httpOnly cookies
+- Protected routes and role-based authorization middleware
+- Rate-limited login (brute-force protection) and Zod schema validation
+- Password hashing (bcrypt) and change-password flow
+- Student portal: dashboard, profile, results, attendance, fee details
+- Faculty portal: assigned students/classes, attendance, marks
+- Admin portal: manage students (paginated), manage subjects, marks/attendance/fee operations
 
 ## Project Structure
 
-- client
-  - src/components
-  - src/context
-  - src/layouts
-  - src/pages
-  - src/services
-  - src/styles
-- server
-  - src/config
-  - src/controllers
-  - src/middleware
-  - src/models
-  - src/routes
-  - src/seed
-  - src/utils
+```
+client/
+  src/components, context, layouts, pages, services, styles
+server/
+  src/config, controllers, middleware, models, routes, seed, utils, validators
+```
 
-## Environment Setup
+## Setup
 
-### Server env
+### 1. Server
 
-1. Copy `server/.env.example` to `server/.env`
-2. Update values if needed:
+```bash
+cd server
+npm install
+cp .env.example .env
+```
 
+Update `server/.env`:
 ```env
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/university_erp
@@ -42,70 +47,45 @@ JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:5173
 ```
 
-### Client env
+### 2. Client
 
-1. Copy `client/.env.example` to `client/.env`
-2. Keep:
+```bash
+cd client
+npm install
+cp .env.example .env
+```
 
+Update `client/.env`:
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
-## Install
-
-```bash
-cd server
-npm install
-
-cd ../client
-npm install
-```
-
-## Seed Database
+### 3. Seed demo data
 
 ```bash
 cd server
 npm run seed
 ```
 
-Seeded demo users:
+| Role    | Login ID   | Password      |
+|---------|------------|---------------|
+| Student | STU23001   | Student@123   |
+| Faculty | FAC2101    | Faculty@123   |
+| Admin   | ADM1001    | Admin@123     |
 
-- Student: `STU23001` / `Student@123`
-- Faculty: `FAC2101` / `Faculty@123`
-- Admin: `ADM1001` / `Admin@123`
-
-## Run Application
-
-Start backend:
+### 4. Run
 
 ```bash
-cd server
-npm run dev
+# terminal 1
+cd server && npm run dev
+
+# terminal 2
+cd client && npm run dev
 ```
 
-Start frontend:
+Open `http://localhost:5173`
 
-```bash
-cd client
-npm run dev
-```
+## Notes
 
-Open: `http://localhost:5173`
-
-## Main Features
-
-- JWT login with role tabs (Student / Faculty / Admin)
-- Protected routes and role authorization
-- Password hashing and change-password flow
-- Student portal: dashboard, profile, results, attendance, fee details
-- Faculty portal: assigned students/classes, attendance, marks, records
-- Admin portal: manage students, manage subjects, marks/attendance/fee operations
-- Premium dark academic UI with navy-gold visual system
-
-## Validation Done
-
-- Frontend build successful (`npm run build` in `client`)
-- Backend app module syntax validated (`node -e "require('./src/app')"` in `server`)
-=======
-# Student-Management-System-
->>>>>>> 65bfe5eb3ad822345e29652344fef94873f33c2c
+- Auth token is stored as an httpOnly cookie (not localStorage) to reduce XSS risk.
+- Admin's student list endpoint is paginated (`?page=&limit=`).
