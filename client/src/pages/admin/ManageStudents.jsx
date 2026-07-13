@@ -59,7 +59,7 @@ const ManageStudents = () => {
 
   const load = async () => {
     const data = await fetchStudents();
-    setStudents(data);
+    setStudents(data.students);
   };
 
   useEffect(() => {

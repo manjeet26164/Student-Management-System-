@@ -7,9 +7,11 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const load = async () => {
-      const [students, subjects] = await Promise.all([fetchStudents(), fetchSubjects()]);
+      // limit=1000 here just for dashboard aggregate stats; real listing pages use small page sizes
+      const [studentsRes, subjects] = await Promise.all([fetchStudents(1, 1000), fetchSubjects()]);
+      const students = studentsRes.students;
       setStats({
-        students: students.length,
+        students: studentsRes.pagination.total,
         subjects: subjects.length,
         branches: new Set(students.map((s) => s.branch)).size,
         semesters: new Set(students.map((s) => s.semester)).size,

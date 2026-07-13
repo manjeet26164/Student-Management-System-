@@ -18,7 +18,7 @@ const AcademicOperations = () => {
 
   useEffect(() => {
     Promise.all([fetchStudents(), fetchSubjects()]).then(([std, sub]) => {
-      setStudents(std);
+      setStudents(std.students);
       setSubjects(sub);
     });
   }, []);

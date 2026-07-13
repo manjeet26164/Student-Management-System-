@@ -1,6 +1,7 @@
 import api from "./api";
 
-export const fetchStudents = async () => (await api.get("/admin/students")).data;
+export const fetchStudents = async (page = 1, limit = 20) =>
+  (await api.get("/admin/students", { params: { page, limit } })).data;
 export const createStudent = async (payload) => (await api.post("/admin/students", payload)).data;
 export const updateStudent = async (id, payload) => (await api.put(`/admin/students/${id}`, payload)).data;
 export const removeStudent = async (id) => (await api.delete(`/admin/students/${id}`)).data;

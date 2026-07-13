@@ -14,3 +14,8 @@ export const changePasswordRequest = async (payload) => {
   const { data } = await api.put("/auth/change-password", payload);
   return data;
 };
+
+export const logoutRequest = async () => {
+  const { data } = await api.post("/auth/logout");
+  return data;
+};
