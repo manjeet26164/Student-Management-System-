@@ -7,13 +7,13 @@ const { loginSchema, changePasswordSchema } = require("../validators/authValidat
 
 const router = express.Router();
 
-// Max 5 login attempts per 15 min per IP — blocks brute force
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
   message: { message: "Too many login attempts. Try again in 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => process.env.NODE_ENV === "test" && req.headers["x-test-bypass-ratelimit"] === "true",
 });
 
 router.post("/login", loginLimiter, validate(loginSchema), login);
