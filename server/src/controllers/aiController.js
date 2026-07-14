@@ -1,23 +1,24 @@
-const { callClaude } = require("../services/anthropicClient");
+const { callGemini, getFunctionCall, getText } = require("../services/geminiClient");
 const Student = require("../models/Student");
 const Attendance = require("../models/Attendance");
 const Result = require("../models/Result");
 const Fee = require("../models/Fee");
 
+// Gemini function declarations use OpenAPI-style schema with UPPERCASE type names
 const filterTool = {
   name: "filter_students",
   description: "Extract structured filter criteria from an admin's natural language request about students.",
-  input_schema: {
-    type: "object",
+  parameters: {
+    type: "OBJECT",
     properties: {
-      branch: { type: "string", description: "e.g. CSE, ECE, ME" },
-      semester: { type: "number" },
-      section: { type: "string" },
-      batch: { type: "string" },
-      cgpaMin: { type: "number" },
-      cgpaMax: { type: "number" },
-      backlogsMin: { type: "number" },
-      backlogsMax: { type: "number" },
+      branch: { type: "STRING", description: "e.g. CSE, ECE, ME" },
+      semester: { type: "NUMBER" },
+      section: { type: "STRING" },
+      batch: { type: "STRING" },
+      cgpaMin: { type: "NUMBER" },
+      cgpaMax: { type: "NUMBER" },
+      backlogsMin: { type: "NUMBER" },
+      backlogsMax: { type: "NUMBER" },
     },
   },
 };
@@ -28,20 +29,21 @@ const aiQueryStudents = async (req, res) => {
     return res.status(400).json({ message: "query (string) is required" });
   }
 
-  const aiResponse = await callClaude({
-    system: "Extract search filters for a student database from the admin's request. Only include fields the admin actually mentioned.",
-    messages: [{ role: "user", content: query }],
-    tools: [filterTool],
-    tool_choice: { type: "tool", name: "filter_students" },
-    max_tokens: 300,
+  const aiResponse = await callGemini({
+    system:
+      "Extract search filters for a student database from the admin's request. Only include fields the admin actually mentioned.",
+    userText: query,
+    tool: filterTool,
+    forceTool: true,
+    maxOutputTokens: 300,
   });
 
-  const toolUse = aiResponse.content.find((block) => block.type === "tool_use");
-  if (!toolUse) {
+  const functionCall = getFunctionCall(aiResponse);
+  if (!functionCall) {
     return res.status(502).json({ message: "AI did not return a usable filter" });
   }
 
-  const f = toolUse.input;
+  const f = functionCall.args || {};
   const mongoFilter = {};
   if (f.branch) mongoFilter.branch = new RegExp(`^${f.branch}$`, "i");
   if (f.semester !== undefined) mongoFilter.semester = f.semester;
@@ -88,18 +90,19 @@ const aiInsights = async (req, res) => {
     pendingFeeRecords: pendingFees,
   };
 
-  const aiResponse = await callClaude({
+  const aiResponse = await callGemini({
     system:
       "You are an academic advisor. Given a student's stats, respond with ONLY valid JSON: " +
-      '{"riskLevel":"low|medium|high","summary":"2-3 sentence plain-language summary","recommendations":["max 3 short action items"]}. No markdown, no extra text.',
-    messages: [{ role: "user", content: JSON.stringify(dataSummary) }],
-    max_tokens: 400,
+      '{"riskLevel":"low|medium|high","summary":"2-3 sentence plain-language summary","recommendations":["max 3 short action items"]}.',
+    userText: JSON.stringify(dataSummary),
+    jsonMode: true,
+    maxOutputTokens: 400,
   });
 
-  const textBlock = aiResponse.content.find((b) => b.type === "text");
+  const rawText = getText(aiResponse);
   let insight;
   try {
-    insight = JSON.parse(textBlock.text);
+    insight = JSON.parse(rawText);
   } catch {
     return res.status(502).json({ message: "AI returned an unparsable response" });
   }
