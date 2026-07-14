@@ -3,8 +3,8 @@ const Student = require("../models/Student");
 const Attendance = require("../models/Attendance");
 const Result = require("../models/Result");
 const Fee = require("../models/Fee");
+const Faculty = require("../models/Faculty");
 
-// Gemini function declarations use OpenAPI-style schema with UPPERCASE type names
 const filterTool = {
   name: "filter_students",
   description: "Extract structured filter criteria from an admin's natural language request about students.",
@@ -110,4 +110,61 @@ const aiInsights = async (req, res) => {
   return res.json({ stats: dataSummary, insight });
 };
 
-module.exports = { aiQueryStudents, aiInsights };
+const aiClassInsights = async (req, res) => {
+  const faculty = await Faculty.findOne({ user: req.user._id }).populate("assignedSubjects");
+  if (!faculty) return res.status(404).json({ message: "Faculty profile not found" });
+
+  const subjectIds = faculty.assignedSubjects.map((s) => s._id);
+  const semesters = [...new Set(faculty.assignedSubjects.map((s) => s.semester))];
+  const branches = [...new Set(faculty.assignedSubjects.map((s) => s.branch))];
+
+  const students = await Student.find({ semester: { $in: semesters }, branch: { $in: branches } });
+  const studentIds = students.map((s) => s._id);
+
+  const [attendance, results] = await Promise.all([
+    Attendance.find({ student: { $in: studentIds }, subject: { $in: subjectIds } }),
+    Result.find({ student: { $in: studentIds } }),
+  ]);
+
+  const avgAttendance = attendance.length
+    ? Math.round(attendance.reduce((s, a) => s + a.percentage, 0) / attendance.length)
+    : null;
+
+  const lowAttendanceCount = attendance.filter((a) => a.percentage < 75).length;
+  const avgCgpa = students.length
+    ? Number((students.reduce((s, st) => s + (st.cgpa || 0), 0) / students.length).toFixed(2))
+    : null;
+  const atRiskCount = students.filter((s) => s.cgpa < 6 || s.backlogs > 0).length;
+
+  const dataSummary = {
+    totalStudents: students.length,
+    totalSubjects: faculty.assignedSubjects.length,
+    avgAttendancePercent: avgAttendance,
+    lowAttendanceRecords: lowAttendanceCount,
+    avgCgpa,
+    atRiskStudentCount: atRiskCount,
+    totalResultRecords: results.length,
+  };
+
+  const aiResponse = await callGemini({
+    system:
+      "You are an academic performance advisor for a faculty member. Given aggregate class stats, respond with ONLY valid JSON: " +
+      '{"classHealth":"low|medium|high","summary":"2-3 sentence plain-language summary","recommendations":["max 3 short action items for the faculty member"]}. ' +
+      'classHealth reflects how healthy the class performance is: "high" is good, "low" needs urgent attention.',
+    userText: JSON.stringify(dataSummary),
+    jsonMode: true,
+    maxOutputTokens: 400,
+  });
+
+  const rawText = getText(aiResponse);
+  let insight;
+  try {
+    insight = JSON.parse(rawText);
+  } catch {
+    return res.status(502).json({ message: "AI returned an unparsable response" });
+  }
+
+  return res.json({ stats: dataSummary, insight });
+};
+
+module.exports = { aiQueryStudents, aiInsights, aiClassInsights };

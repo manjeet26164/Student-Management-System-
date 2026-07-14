@@ -9,3 +9,4 @@ export const fetchFacultyNotifications = async () => (await api.get("/faculty/no
 export const fetchFacultyDocuments = async () => (await api.get("/faculty/documents")).data;
 export const verifyFacultyDocument = async (documentId) =>
 	(await api.put(`/faculty/documents/${documentId}/verify`)).data;
+export const fetchAiClassInsights = async () => (await api.get("/faculty/ai/insights")).data;
