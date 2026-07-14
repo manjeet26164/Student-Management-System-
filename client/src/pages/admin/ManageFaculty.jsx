@@ -6,6 +6,7 @@ import {
   removeFaculty,
   updateFaculty,
 } from "../../services/adminService";
+import PaginationControls from "../../components/PaginationControls";
 
 const initialForm = {
   fullName: "",
@@ -31,19 +32,30 @@ const mapFacultyToForm = (faculty) => ({
 
 const ManageFaculty = () => {
   const [faculties, setFaculties] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [page, setPage] = useState(1);
   const [subjects, setSubjects] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState("");
   const [message, setMessage] = useState("");
 
-  const load = async () => {
-    const [facultyData, subjectData] = await Promise.all([fetchFaculties(), fetchSubjects()]);
-    setFaculties(facultyData);
-    setSubjects(subjectData);
+  const loadFaculties = async (targetPage = page) => {
+    const data = await fetchFaculties(targetPage, 20);
+    setFaculties(data.faculties);
+    setPagination(data.pagination);
+  };
+
+  const loadSubjectOptions = async () => {
+    const data = await fetchSubjects(1, 100);
+    setSubjects(data.subjects);
   };
 
   useEffect(() => {
-    load();
+    loadFaculties(page);
+  }, [page]);
+
+  useEffect(() => {
+    loadSubjectOptions();
   }, []);
 
   const onChange = (event) => {
@@ -78,7 +90,7 @@ const ManageFaculty = () => {
     }
 
     resetForm();
-    await load();
+    await loadFaculties();
   };
 
   const onEdit = (faculty) => {
@@ -91,7 +103,7 @@ const ManageFaculty = () => {
     await removeFaculty(facultyId);
     setMessage("Faculty removed successfully.");
     if (editingId === facultyId) resetForm();
-    await load();
+    await loadFaculties();
   };
 
   return (
@@ -176,6 +188,7 @@ const ManageFaculty = () => {
             ))}
           </tbody>
         </table>
+        <PaginationControls pagination={pagination} onPageChange={setPage} />
       </section>
     </div>
   );

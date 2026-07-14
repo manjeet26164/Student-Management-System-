@@ -17,9 +17,9 @@ const AcademicOperations = () => {
   const [marksForm, setMarksForm] = useState({ studentId: "", semester: 1, sgpa: 0, cgpa: 0, subjectCode: "", subjectName: "", credits: 0, grade: "", marks: 0 });
 
   useEffect(() => {
-    Promise.all([fetchStudents(), fetchSubjects()]).then(([std, sub]) => {
+    Promise.all([fetchStudents(1, 1000), fetchSubjects(1, 1000)]).then(([std, sub]) => {
       setStudents(std.students);
-      setSubjects(sub);
+      setSubjects(sub.subjects);
     });
   }, []);
 

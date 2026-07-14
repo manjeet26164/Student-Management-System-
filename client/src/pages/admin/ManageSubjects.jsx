@@ -5,6 +5,7 @@ import {
   removeSubject,
   updateSubject,
 } from "../../services/adminService";
+import PaginationControls from "../../components/PaginationControls";
 
 const subjectInitial = {
   code: "",
@@ -16,16 +17,19 @@ const subjectInitial = {
 
 const ManageSubjects = () => {
   const [subjects, setSubjects] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [page, setPage] = useState(1);
   const [form, setForm] = useState(subjectInitial);
 
-  const load = async () => {
-    const data = await fetchSubjects();
-    setSubjects(data);
+  const load = async (targetPage = page) => {
+    const data = await fetchSubjects(targetPage, 20);
+    setSubjects(data.subjects);
+    setPagination(data.pagination);
   };
 
   useEffect(() => {
-    load();
-  }, []);
+    load(page);
+  }, [page]);
 
   const onSubmit = async (event) => {
     event.preventDefault();
@@ -98,6 +102,7 @@ const ManageSubjects = () => {
             ))}
           </tbody>
         </table>
+        <PaginationControls pagination={pagination} onPageChange={setPage} />
       </section>
     </div>
   );

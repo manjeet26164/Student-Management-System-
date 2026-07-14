@@ -215,11 +215,24 @@ const updateStudent = async (req, res) => {
 };
 
 const getFaculties = async (req, res) => {
-  const faculties = await Faculty.find()
-    .populate("user", "fullName email universityId")
-    .populate("assignedSubjects", "code name")
-    .sort({ createdAt: -1 });
-  return res.json(faculties);
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
+  const skip = (page - 1) * limit;
+
+  const [faculties, total] = await Promise.all([
+    Faculty.find()
+      .populate("user", "fullName email universityId")
+      .populate("assignedSubjects", "code name")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Faculty.countDocuments(),
+  ]);
+
+  return res.json({
+    faculties,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
 };
 
 const addFaculty = async (req, res) => {
@@ -328,8 +341,23 @@ const deleteStudent = async (req, res) => {
 };
 
 const getSubjects = async (req, res) => {
-  const subjects = await Subject.find().populate({ path: "faculty", populate: { path: "user", select: "fullName" } });
-  return res.json(subjects);
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
+  const skip = (page - 1) * limit;
+
+  const [subjects, total] = await Promise.all([
+    Subject.find()
+      .populate({ path: "faculty", populate: { path: "user", select: "fullName" } })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Subject.countDocuments(),
+  ]);
+
+  return res.json({
+    subjects,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
 };
 
 const addSubject = async (req, res) => {
