@@ -24,11 +24,13 @@ const login = async (req, res) => {
 
   const token = generateToken(user._id, user.role);
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   res.cookie("erp_token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days, keep in sync with JWT_EXPIRES_IN
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, 
   });
 
   return res.json({
@@ -43,7 +45,13 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  res.clearCookie("erp_token");
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.clearCookie("erp_token", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "strict",
+  });
   return res.json({ message: "Logged out" });
 };
 

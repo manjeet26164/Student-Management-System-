@@ -10,6 +10,11 @@ const studentRoutes = require("./routes/studentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const app = express();
+
+app.set("trust proxy", 1);
+
+app.use(helmet());
 
 const app = express();
 
