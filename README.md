@@ -14,8 +14,6 @@ A full-stack university ERP portal with role-based modules for **Student**, **Fa
 ![Student Dashboard](docs/screenshots/student_dashboard.png)
 *Student portal dashboard*
 
-> More screenshots (Admin panel, AI insights) coming soon.
-
 ---
 
 ## Architecture
