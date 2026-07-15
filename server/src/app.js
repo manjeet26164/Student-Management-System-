@@ -16,9 +16,6 @@ app.set("trust proxy", 1);
 
 app.use(helmet());
 
-const app = express();
-
-app.use(helmet());
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
