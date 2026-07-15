@@ -56,7 +56,7 @@ describe("POST /api/auth/login", () => {
     expect(res.status).toBe(401);
   });
 
-  it("rejects a mismatched role", async () => {
+  it("rejects a mismatched role with a generic error", async () => {
     await createUser({
       email: "student3@test.com",
       universityId: "STU1003",
@@ -70,7 +70,8 @@ describe("POST /api/auth/login", () => {
       role: "admin",
     });
 
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
+    expect(res.body.message).toBe("Invalid credentials");
   });
 
   it("rejects an unknown identifier", async () => {

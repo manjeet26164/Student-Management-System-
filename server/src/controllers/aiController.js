@@ -4,6 +4,7 @@ const Attendance = require("../models/Attendance");
 const Result = require("../models/Result");
 const Fee = require("../models/Fee");
 const Faculty = require("../models/Faculty");
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const filterTool = {
   name: "filter_students",
@@ -45,9 +46,9 @@ const aiQueryStudents = async (req, res) => {
 
   const f = functionCall.args || {};
   const mongoFilter = {};
-  if (f.branch) mongoFilter.branch = new RegExp(`^${f.branch}$`, "i");
+  if (f.branch) mongoFilter.branch = new RegExp(`^${escapeRegex(f.branch)}$`, "i");
   if (f.semester !== undefined) mongoFilter.semester = f.semester;
-  if (f.section) mongoFilter.section = new RegExp(`^${f.section}$`, "i");
+  if (f.section) mongoFilter.section = new RegExp(`^${escapeRegex(f.section)}$`, "i");
   if (f.batch) mongoFilter.batch = f.batch;
   if (f.cgpaMin !== undefined || f.cgpaMax !== undefined) {
     mongoFilter.cgpa = {};

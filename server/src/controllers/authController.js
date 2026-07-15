@@ -9,12 +9,8 @@ const login = async (req, res) => {
     : { universityId: identifier };
 
   const user = await User.findOne(query);
-  if (!user) {
+  if (!user || user.role !== role) {
     return res.status(401).json({ message: "Invalid credentials" });
-  }
-
-  if (user.role !== role) {
-    return res.status(403).json({ message: "Role does not match this account" });
   }
 
   const isPasswordValid = await user.matchPassword(password);
