@@ -87,7 +87,7 @@ const LoginPage = () => {
             <input
               id="identifier"
               name="identifier"
-              placeholder="e.g. STU23001"
+              placeholder="Enter your university ID"
               value={form.identifier}
               onChange={handleChange}
               required
@@ -111,12 +111,18 @@ const LoginPage = () => {
 
           {message.text ? <p className={`form-message ${message.type}`}>{message.text}</p> : null}
 
-          <div className="demo-credentials">
-            <p>Demo IDs:</p>
-            <small>Student: STU23001 / Student@123</small>
-            <small>Faculty: FAC2101 / Faculty@123</small>
-            <small>Admin: ADM1001 / Admin@123</small>
-          </div>
+          {import.meta.env.DEV ? (
+            <div className="demo-credentials">
+              <p>Demo IDs:</p>
+              <small>Student: STU23001 / Student@123</small>
+              <small>Faculty: FAC2101 / Faculty@123</small>
+              <small>Admin: ADM1001 / Admin@123</small>
+            </div>
+          ) : (
+            <div className="demo-credentials">
+              <small>Forgot your credentials? Contact your university administration office.</small>
+            </div>
+          )}
         </section>
       </div>
     </div>
