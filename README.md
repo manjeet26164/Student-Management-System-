@@ -2,7 +2,7 @@
 
 A full-stack university ERP portal with role-based modules for **Student**, **Faculty**, and **Admin**. Built on the MERN stack with JWT (httpOnly cookie) authentication, Zod validation, and rate-limited auth/AI routes.
 
-![CI](https://github.com/manjeet26164/Student-Management-System-/actions/workflows/test.yml/badge.svg)
+[![CI](https://github.com/manjeet26164/Student-Management-System-/actions/workflows/test.yml/badge.svg)](https://github.com/manjeet26164/Student-Management-System-/actions/workflows/test.yml)
 
 ---
 
