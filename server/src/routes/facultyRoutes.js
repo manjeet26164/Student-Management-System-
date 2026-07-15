@@ -12,6 +12,8 @@ const {
 } = require("../controllers/facultyController");
 const { aiClassInsights } = require("../controllers/aiController");
 const { protect, authorize } = require("../middleware/authMiddleware");
+const validate = require("../middleware/validate");
+const { uploadMarksSchema, updateAttendanceSchema } = require("../validators/sharedValidators");
 
 const router = express.Router();
 
@@ -21,8 +23,8 @@ router.use(protect, authorize("faculty"));
 
 router.get("/classes", getAssignedClasses);
 router.get("/students", getAssignedStudents);
-router.post("/attendance", markAttendance);
-router.post("/marks", uploadMarks);
+router.post("/attendance", validate(updateAttendanceSchema), markAttendance);
+router.post("/marks", validate(uploadMarksSchema), uploadMarks);
 router.get("/records", getClassRecords);
 router.get("/notifications", getNotifications);
 router.get("/documents", getDocumentsForVerification);
