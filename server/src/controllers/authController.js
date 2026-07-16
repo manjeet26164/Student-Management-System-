@@ -12,6 +12,9 @@ const login = async (req, res) => {
   if (!user || user.role !== role) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
+  if (!user.isActive) {
+    return res.status(401).json({ message: "Account has been deactivated" });
+  }
 
   const isPasswordValid = await user.matchPassword(password);
   if (!isPasswordValid) {

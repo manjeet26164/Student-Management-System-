@@ -60,6 +60,18 @@ const uploadMarks = async (req, res) => {
     return res.status(400).json({ message: "studentId, semester and subjects are required" });
   }
 
+  const faculty = await getFacultyProfile(req.user._id);
+  if (!faculty) return res.status(404).json({ message: "Faculty profile not found" });
+
+  const assignedCodes = faculty.assignedSubjects.map((s) => s.code.toLowerCase());
+  const hasUnauthorizedSubject = subjects.some(
+    (item) => !assignedCodes.includes((item.subjectCode || "").toLowerCase())
+  );
+  if (hasUnauthorizedSubject) {
+    return res.status(403).json({ message: "Not authorized to upload marks for one or more subjects" });
+  }
+
+
   const normalizedSubjects = subjects
     .filter((item) => item && item.subjectCode && item.subjectName)
     .map((item) => ({
