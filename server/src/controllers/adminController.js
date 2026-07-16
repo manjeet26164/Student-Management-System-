@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const User = require("../models/User");
 const Student = require("../models/Student");
 const Faculty = require("../models/Faculty");
@@ -6,6 +8,18 @@ const Result = require("../models/Result");
 const Attendance = require("../models/Attendance");
 const Fee = require("../models/Fee");
 const Document = require("../models/Document");
+
+const uploadsDir = path.join(__dirname, "../../uploads/documents");
+
+const removeUploadedFile = (fileName) => {
+  if (!fileName) return;
+  const filePath = path.join(uploadsDir, fileName);
+  fs.unlink(filePath, (err) => {
+    if (err && err.code !== "ENOENT") {
+      console.error(`Failed to remove uploaded file ${fileName}:`, err.message);
+    }
+  });
+};
 
 const buildStudentPayload = (body) => {
   const payload = {};
@@ -146,7 +160,15 @@ const addStudent = async (req, res) => {
     guardianPhone,
   });
 
-  const student = await Student.create(studentPayload);
+  let student;
+  try {
+    student = await Student.create(studentPayload);
+  } catch (err) {
+    // Roll back the just-created login account so we don't leave an orphan
+
+    await User.findByIdAndDelete(user._id);
+    throw err;
+  }
 
   return res.status(201).json({ user, student });
 };
@@ -258,13 +280,21 @@ const addFaculty = async (req, res) => {
   if (employeeExists) return res.status(409).json({ message: "Employee ID already exists" });
 
   const user = await User.create({ fullName, email, universityId, password, role: "faculty" });
-  const faculty = await Faculty.create({
-    user: user._id,
-    employeeId,
-    department,
-    designation,
-    assignedSubjects: Array.isArray(assignedSubjects) ? assignedSubjects : [],
-  });
+
+  let faculty;
+  try {
+    faculty = await Faculty.create({
+      user: user._id,
+      employeeId,
+      department,
+      designation,
+      assignedSubjects: Array.isArray(assignedSubjects) ? assignedSubjects : [],
+    });
+  } catch (err) {
+    // Roll back the just-created login account so we don't leave an orphan
+    await User.findByIdAndDelete(user._id);
+    throw err;
+  }
 
   await Subject.updateMany(
     { _id: { $in: faculty.assignedSubjects } },
@@ -328,6 +358,8 @@ const deleteStudent = async (req, res) => {
   const student = await Student.findById(req.params.id);
   if (!student) return res.status(404).json({ message: "Student not found" });
 
+  const documents = await Document.find({ student: student._id }, "fileName");
+
   await Promise.all([
     User.findByIdAndDelete(student.user),
     Result.deleteMany({ student: student._id }),
@@ -336,6 +368,8 @@ const deleteStudent = async (req, res) => {
     Document.deleteMany({ student: student._id }),
     Student.findByIdAndDelete(student._id),
   ]);
+
+  documents.forEach((doc) => removeUploadedFile(doc.fileName));
 
   return res.json({ message: "Student removed successfully" });
 };
