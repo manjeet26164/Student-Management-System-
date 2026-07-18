@@ -1,4 +1,4 @@
-const MODEL = "gemini-3.5-flash"; 
+const MODEL = "gemini-3.1-flash-lite";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 async function callGemini({ system, userText, tool, forceTool, jsonMode, maxOutputTokens = 1024 }) {

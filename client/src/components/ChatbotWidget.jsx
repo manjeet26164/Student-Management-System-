@@ -66,7 +66,7 @@ const ChatbotWidget = () => {
           <form className="chatbot-input-row" onSubmit={send}>
             <input
               type="text"
-              placeholder="Apna sawaal likho..."
+              placeholder="Give me your query..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={loading}
