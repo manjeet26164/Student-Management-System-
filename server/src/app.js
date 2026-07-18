@@ -29,7 +29,7 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.get("/api/health", (req, res) => {
-  res.json({ message: "University ERP API is running" });
+  res.json({ message: "AI-Powered University ERP API is running" });
 });
 
 app.use("/api/auth", authRoutes);

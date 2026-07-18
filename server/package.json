@@ -1,7 +1,7 @@
 {
-  "name": "university-erp-server",
+  "name": "ai-powered-university-erp-server",
   "version": "1.0.0",
-  "description": "Backend API for University ERP Portal",
+  "description": "Backend API for AI-Powered University ERP System",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {

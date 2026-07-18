@@ -1,6 +1,6 @@
-# University ERP Portal (MERN)
+### AI-Powered University ERP System (MERN)
 
-A full-stack university ERP portal with role-based modules for **Student**, **Faculty**, and **Admin**. Built on the MERN stack with JWT (httpOnly cookie) authentication, Zod validation, and rate-limited auth/AI routes.
+A full-stack university ERP portal with role-based modules for Student, Faculty, and Admin, integrated with a Gemini-powered AI assistant for rulebook queries and personal academic data. Built on the MERN stack with JWT (httpOnly cookie) authentication, Zod validation, and rate-limited auth/AI routes.
 
 [![CI](https://github.com/manjeet26164/Student-Management-System-/actions/workflows/test.yml/badge.svg)](https://github.com/manjeet26164/Student-Management-System-/actions/workflows/test.yml)
 
