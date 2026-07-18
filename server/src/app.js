@@ -11,6 +11,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const app = express();
+const chatbotRoutes = require("./routes/chatbotRoutes");
 
 app.set("trust proxy", 1);
 
@@ -35,6 +36,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/faculty", facultyRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
