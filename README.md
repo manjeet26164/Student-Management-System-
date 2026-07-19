@@ -1,4 +1,4 @@
-### AI-Powered University ERP System (MERN)
+#### AI-Powered University ERP System (MERN)
 
 A full-stack university ERP portal with role-based modules for Student, Faculty, and Admin, integrated with a Gemini-powered AI assistant for rulebook queries and personal academic data. Built on the MERN stack with JWT (httpOnly cookie) authentication, Zod validation, and rate-limited auth/AI routes.
 

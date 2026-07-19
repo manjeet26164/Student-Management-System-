@@ -58,7 +58,7 @@ const addSubjectSchema = z.object({
 
 const updateSubjectSchema = addSubjectSchema.partial().strict();
 
-// ---------- Fees ----------
+// ---------- Fees ------------
 
 const updateFeeSchema = z.object({
   studentId: z.string().min(1, "studentId is required"),
