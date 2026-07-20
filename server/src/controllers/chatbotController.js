@@ -1,9 +1,8 @@
 const KnowledgeChunk = require("../models/KnowledgeChunk");
-const { embedText, cosineSimilarity } = require("../services/geminiEmbeddings");
+const { embedText } = require("../services/geminiEmbeddings");
+const { searchKnowledgeChunks } = require("../services/vectorSearchService");
 const { callGemini, getText } = require("../services/geminiClient");
 const { buildStudentContext } = require("../services/studentDataService");
-
-const TOP_K = 5;
 
 const LANGUAGE_INSTRUCTION =
   "Reply in the same language style the user used in their message. If the user wrote in plain English, reply in English. If the user wrote in Hindi or Hinglish (Hindi words in Roman/English script), reply in Hinglish the same way. Default to English when the message is short, ambiguous, or contains no clear Hindi/Hinglish words.";
@@ -43,9 +42,9 @@ const classifyIntent = (message) => {
 };
 
 const answerRulebookQuery = async (message, role) => {
-  const chunks = await KnowledgeChunk.find({ roles: role }).lean();
+  const hasAnyDocs = await KnowledgeChunk.exists({ roles: role });
 
-  if (chunks.length === 0) {
+  if (!hasAnyDocs) {
     return {
       answer: "Rulebook data has not been uploaded yet. Please contact the administration office for this query.",
       sources: [],
@@ -53,11 +52,14 @@ const answerRulebookQuery = async (message, role) => {
   }
 
   const queryEmbedding = await embedText(message);
+  const ranked = await searchKnowledgeChunks(queryEmbedding, role);
 
-  const ranked = chunks
-    .map((chunk) => ({ ...chunk, score: cosineSimilarity(queryEmbedding, chunk.embedding) }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, TOP_K);
+  if (ranked.length === 0) {
+    return {
+      answer: "Rulebook data has not been uploaded yet. Please contact the administration office for this query.",
+      sources: [],
+    };
+  }
 
   const context = ranked
     .map((c, i) => `[${i + 1}] (Source: ${c.sourceFile}${c.page ? `, page ${c.page}` : ""})\n${c.text}`)
