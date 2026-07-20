@@ -1,6 +1,6 @@
 #### AI-Powered University ERP System (MERN)
 
-A full-stack university ERP portal with role-based modules for Student, Faculty, and Admin, integrated with a Gemini-powered AI assistant for rulebook queries and personal academic data. Built on the MERN stack with JWT (httpOnly cookie) authentication, Zod validation, and rate-limited auth/AI routes.
+A full-stack university ERP portal with role-based modules for Student, Faculty, and Admin, integrated with a **hybrid Gemini-powered AI assistant** — rulebook Q&A (RAG), live personal academic data, and general chat, all in one widget. Access to rulebook content is enforced with **database-level, admin-managed RBAC** (not filename conventions), reassignable at runtime with zero re-uploads. Built on the MERN stack with JWT (httpOnly cookie) authentication, Zod validation, and rate-limited auth/AI routes.
 
 [![CI](https://github.com/manjeet26164/Student-Management-System-/actions/workflows/test.yml/badge.svg)](https://github.com/manjeet26164/Student-Management-System-/actions/workflows/test.yml)
 
@@ -24,6 +24,7 @@ flowchart LR
         A[Student Portal]
         B[Faculty Portal]
         C[Admin Portal]
+        W[Chatbot Widget]
     end
 
     subgraph Server["Express API"]
@@ -31,16 +32,25 @@ flowchart LR
         E[Zod Validation Layer]
         F[Controllers]
         G[AI Controller<br/>Gemini]
+        I[Chatbot Controller<br/>intent router]
+        K[Knowledge Controller<br/>admin RBAC mgmt]
     end
 
     H[(MongoDB<br/>Mongoose)]
+    KC[(KnowledgeChunk<br/>roles: student/faculty/admin)]
 
     A -->|httpOnly cookie| D
     B -->|httpOnly cookie| D
     C -->|httpOnly cookie| D
+    W -->|httpOnly cookie| D
     D --> E --> F
     F --> H
     F --> G
+    D --> I
+    I -->|rulebook: role-filtered| KC
+    I -->|personal_academic| H
+    C -->|upload PDF + roles| K
+    K --> KC
 ```
 
 ---
@@ -103,6 +113,7 @@ MONGO_URI=mongodb://127.0.0.1:27017/university_erp
 JWT_SECRET=your_super_secret_jwt_key
 JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:5173
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ### 2. Client
@@ -152,6 +163,30 @@ Open `http://localhost:5173`
 
 ---
 
+## AI Assistant
+
+A floating chatbot widget (bottom-right, all portals) handles three intents via **local regex classification** — no extra Gemini call spent on routing:
+
+| Intent | Trigger | Source of truth |
+|---|---|---|
+| `rulebook` | rules, fees, fines, deadlines, policies | RAG over `KnowledgeChunk` collection, filtered by role |
+| `personal_academic` | "my CGPA", "my attendance", "my fee status" | Live MongoDB read (`Result`, `Attendance`, `Fee`, `Student`) — student role only |
+| `general` | greetings, small talk | Answered directly, no restricted context |
+
+Replies match the user's language style — plain English in, English out; Hindi/Hinglish in, Hinglish out.
+
+### Role-based access control — database-level, not filename-based
+
+Rulebook documents are access-controlled by a `roles: ["student" | "faculty" | "admin"]` field stored **per chunk in MongoDB** — never inferred from the PDF's filename. This is managed from **Admin → Knowledge Base**:
+
+- Upload a rulebook PDF and pick which roles can see it via checkboxes at upload time
+- **Reassign roles on an existing document at any time — no re-upload, no rename.** The change takes effect on the very next query.
+- A file's name carries no access meaning; renaming or duplicating a PDF cannot grant or leak access.
+
+This closes a common gap in student-management clones, where "student_*.pdf" naming conventions are the *only* access control and break the moment a file is renamed or misnamed.
+
+---
+
 ## Testing
 
 ```bash
@@ -161,7 +196,9 @@ npm test
 
 Runs Jest + Supertest against an in-memory MongoDB instance (`mongodb-memory-server`) — no real database or secrets needed. Gemini/AI calls are mocked in tests.
 
-Test suites: `auth`, `auth.ratelimit`, `student.routes`, `admin.students`, `ai`.
+Test suites: `auth`, `auth.ratelimit`, `student.routes`, `admin.students`, `ai`, `chatbot`.
+
+The `chatbot` suite specifically verifies: intent routing, that rulebook retrieval is filtered by the DB `roles` field (using deliberately misleading filenames to prove filename has no bearing on access), that a role reassignment takes effect immediately without any re-upload, personal-data scoping to the logged-in student only, and graceful handling of Gemini 429 rate-limit errors.
 
 ---
 
@@ -209,6 +246,12 @@ Base URL: `/api` · All protected routes require an httpOnly JWT cookie set by `
 | PUT | `/documents/:documentId/verify` | Verify a student document |
 | GET | `/ai/insights` | AI class insights (15 req/hour) |
 
+### Chatbot (`/api/chatbot`) — role: `student` | `faculty` | `admin`
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/query` | Protected (15 req/min) | Ask the AI assistant; response includes `{ answer, sources, intent }` |
+
 ### Admin (`/api/admin`) — role: `admin`
 
 | Method | Endpoint | Description |
@@ -229,6 +272,10 @@ Base URL: `/api` · All protected routes require an httpOnly JWT cookie set by `
 | POST | `/attendance` | Update attendance (shared schema with faculty) |
 | POST | `/fees` | Update fee status |
 | POST | `/ai/query` | AI query over student data (10 req/hour) |
+| GET | `/knowledge` | List rulebook documents with chunk count + assigned roles |
+| POST | `/knowledge` | Upload a rulebook PDF (multipart, field `file`) with explicit `roles[]` |
+| PUT | `/knowledge/:sourceFile` | Reassign roles for an existing document — no re-upload needed |
+| DELETE | `/knowledge/:sourceFile` | Remove a rulebook document and all its chunks |
 
 </details>
 
@@ -243,6 +290,7 @@ Base URL: `/api` · All protected routes require an httpOnly JWT cookie set by `
 - **Rate limiting** — login (5/15 min) and all AI endpoints are rate-limited per role.
 - **Shared validators** — `uploadMarksSchema` and `updateAttendanceSchema` are defined once and reused by both admin and faculty routes (DRY).
 - **No public self-registration** — accounts are provisioned by the admin, not signed up by users, reducing fake-account risk.
+- **Database-level document RBAC** — rulebook PDF access is controlled by a `roles` field stored per chunk in MongoDB, assigned explicitly by an admin at upload time and reassignable anytime. Filenames carry no access meaning, so renaming or misnaming a file cannot grant or leak access.
 
 ---
 
