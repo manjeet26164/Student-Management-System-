@@ -114,6 +114,7 @@ JWT_SECRET=your_super_secret_jwt_key
 JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:5173
 GEMINI_API_KEY=your_gemini_api_key
+VECTOR_SEARCH_INDEX=          # optional — set only when MONGO_URI points to an Atlas cluster with a vector index (see AI Assistant section below)
 ```
 
 ### 2. Client
@@ -184,6 +185,26 @@ Rulebook documents are access-controlled by a `roles: ["student" | "faculty" | "
 - A file's name carries no access meaning; renaming or duplicating a PDF cannot grant or leak access.
 
 This closes a common gap in student-management clones, where "student_*.pdf" naming conventions are the *only* access control and break the moment a file is renamed or misnamed.
+
+### Retrieval: Atlas Vector Search (with local fallback)
+
+Rulebook retrieval goes through `vectorSearchService.js`:
+
+- **Production (Atlas):** when `VECTOR_SEARCH_INDEX` is set, retrieval uses MongoDB's `$vectorSearch` aggregation stage — an HNSW-indexed approximate-nearest-neighbor search *inside* the database, pre-filtered by role. Retrieval latency stays roughly constant as the knowledge base grows, since Mongo never loads every matching chunk into application memory.
+- **Local dev / tests:** `$vectorSearch` only exists on Atlas, not on a local `mongod` or `mongodb-memory-server`. When `VECTOR_SEARCH_INDEX` is unset, the service falls back to pulling role-matching chunks and ranking them with cosine similarity in JS — correct, but O(n) with the knowledge-base size. This is what the automated tests exercise.
+
+To enable the Atlas path, create a vector index on the `knowledgechunks` collection (Atlas UI → Search → Create Search Index → JSON Editor):
+
+```json
+{
+  "fields": [
+    { "type": "vector", "path": "embedding", "numDimensions": 3072, "similarity": "cosine" },
+    { "type": "filter", "path": "roles" }
+  ]
+}
+```
+
+Then set `VECTOR_SEARCH_INDEX=<your-index-name>` in `server/.env`.
 
 ---
 
