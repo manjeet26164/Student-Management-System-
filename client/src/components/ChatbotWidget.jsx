@@ -8,7 +8,7 @@ const ChatbotWidget = () => {
   const [messages, setMessages] = useState([
     {
       role: "bot",
-      text: "Hi! Main university assistant hoon. Fee, deadlines, rules se related kuch bhi pooch sakte ho.",
+      text: "Hi! I am university assistant. You can ask me anything about fees, deadlines, rules, and other university-related information.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -36,7 +36,7 @@ const ChatbotWidget = () => {
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: "bot", text: err.response?.data?.message || "Kuch gadbad ho gayi, dobara try karo." },
+        { role: "bot", text: err.response?.data?.message || "Please try again later." },
       ]);
     } finally {
       setLoading(false);
