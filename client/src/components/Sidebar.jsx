@@ -26,6 +26,7 @@ const roleMenus = {
     { label: "Manage Faculty", path: "/admin/faculty" },
     { label: "Manage Subjects", path: "/admin/subjects" },
     { label: "Academic Ops", path: "/admin/operations" },
+    { label: "Knowledge Base", path: "/admin/knowledge" },
     { label: "Change Password", path: "/admin/change-password" },
   ],
 };

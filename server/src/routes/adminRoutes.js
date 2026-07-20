@@ -18,7 +18,14 @@ const {
   updateFee,
 } = require("../controllers/adminController");
 const { aiQueryStudents } = require("../controllers/aiController");
+const {
+  uploadKnowledgeDoc,
+  listKnowledgeDocs,
+  updateKnowledgeDocRoles,
+  deleteKnowledgeDoc,
+} = require("../controllers/knowledgeController");
 const { protect, authorize } = require("../middleware/authMiddleware");
+const { knowledgeUpload } = require("../middleware/uploadMiddleware");
 const validate = require("../middleware/validate");
 const {
   addStudentSchema,
@@ -57,5 +64,10 @@ router.post("/marks", validate(uploadMarksSchema), uploadMarks);
 router.post("/attendance", validate(updateAttendanceSchema), updateAttendance);
 router.post("/fees", validate(updateFeeSchema), updateFee);
 router.post("/ai/query", aiLimiter, aiQueryStudents);
+
+router.get("/knowledge", listKnowledgeDocs);
+router.post("/knowledge", knowledgeUpload.single("file"), uploadKnowledgeDoc);
+router.put("/knowledge/:sourceFile", updateKnowledgeDocRoles);
+router.delete("/knowledge/:sourceFile", deleteKnowledgeDoc);
 
 module.exports = router;

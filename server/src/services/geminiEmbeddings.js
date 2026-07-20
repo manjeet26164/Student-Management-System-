@@ -1,4 +1,4 @@
-const EMBED_MODEL = "text-embedding-004";
+const EMBED_MODEL = "gemini-embedding-001";
 const EMBED_URL = `https://generativelanguage.googleapis.com/v1beta/models/${EMBED_MODEL}:embedContent`;
 
 async function embedText(text) {

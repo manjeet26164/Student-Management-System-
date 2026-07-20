@@ -9,12 +9,18 @@ const { embedText } = require("../services/geminiEmbeddings");
 const KB_DIR = path.join(__dirname, "../../knowledge-base");
 const CHUNK_SIZE = 800;
 const CHUNK_OVERLAP = 150;
-const ROLE_PREFIXES = ["student", "faculty", "admin"];
+const VALID_ROLES = ["student", "faculty", "admin"];
 
-function detectRoles(filename) {
-  const prefix = filename.split("_")[0].toLowerCase();
-  if (ROLE_PREFIXES.includes(prefix)) return [prefix];
-  return ["student", "faculty", "admin"];
+const ROLE_MAP = {
+  // "student_fees.pdf": ["student"],
+  // "faculty_leave_policy.pdf": ["faculty"],
+  // "hostel_rules.pdf": ["student", "faculty", "admin"],
+};
+
+function getRolesForFile(filename) {
+  const roles = ROLE_MAP[filename];
+  if (!roles || roles.some((r) => !VALID_ROLES.includes(r))) return null;
+  return roles;
 }
 
 function chunkText(text) {
@@ -55,10 +61,15 @@ async function run() {
 
   for (const file of files) {
     console.log(`\nProcessing ${file} ...`);
+    const roles = getRolesForFile(file);
+    if (!roles) {
+      console.log(`  Skipping ${file} — no explicit ROLE_MAP entry (add one to ingest via this script).`);
+      continue;
+    }
+
     const buffer = fs.readFileSync(path.join(KB_DIR, file));
     const parsed = await pdfParse(buffer);
     const chunks = chunkText(parsed.text);
-    const roles = detectRoles(file);
 
     await KnowledgeChunk.deleteMany({ sourceFile: file });
 

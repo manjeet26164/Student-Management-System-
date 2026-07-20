@@ -14,6 +14,7 @@ import ManageStudents from "./pages/admin/ManageStudents";
 import ManageFaculty from "./pages/admin/ManageFaculty";
 import ManageSubjects from "./pages/admin/ManageSubjects";
 import AcademicOperations from "./pages/admin/AcademicOperations";
+import KnowledgeBase from "./pages/admin/KnowledgeBase";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
 import FacultyStudents from "./pages/faculty/FacultyStudents";
 import FacultyAttendance from "./pages/faculty/FacultyAttendance";
@@ -45,6 +46,7 @@ const App = () => (
       <Route path="/admin/faculty" element={<ProtectedRoute allowedRoles={["admin"]}><ManageFaculty /></ProtectedRoute>} />
       <Route path="/admin/subjects" element={<ProtectedRoute allowedRoles={["admin"]}><ManageSubjects /></ProtectedRoute>} />
       <Route path="/admin/operations" element={<ProtectedRoute allowedRoles={["admin"]}><AcademicOperations /></ProtectedRoute>} />
+      <Route path="/admin/knowledge" element={<ProtectedRoute allowedRoles={["admin"]}><KnowledgeBase /></ProtectedRoute>} />
       <Route path="/admin/change-password" element={<ProtectedRoute allowedRoles={["admin"]}><ChangePasswordPage /></ProtectedRoute>} />
 
       <Route path="/faculty/dashboard" element={<ProtectedRoute allowedRoles={["faculty"]}><FacultyDashboard /></ProtectedRoute>} />

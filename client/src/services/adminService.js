@@ -22,3 +22,22 @@ export const uploadMarksByAdmin = async (payload) => (await api.post("/admin/mar
 export const updateAttendanceByAdmin = async (payload) => (await api.post("/admin/attendance", payload)).data;
 export const updateFeeByAdmin = async (payload) => (await api.post("/admin/fees", payload)).data;
 export const aiQueryStudents = async (query) => (await api.post("/admin/ai/query", { query })).data;
+
+export const fetchKnowledgeDocs = async () => (await api.get("/admin/knowledge")).data;
+
+export const uploadKnowledgeDoc = async (file, roles) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  roles.forEach((role) => formData.append("roles", role));
+
+  const { data } = await api.post("/admin/knowledge", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+};
+
+export const updateKnowledgeDocRoles = async (sourceFile, roles) =>
+  (await api.put(`/admin/knowledge/${encodeURIComponent(sourceFile)}`, { roles })).data;
+
+export const removeKnowledgeDoc = async (sourceFile) =>
+  (await api.delete(`/admin/knowledge/${encodeURIComponent(sourceFile)}`)).data;

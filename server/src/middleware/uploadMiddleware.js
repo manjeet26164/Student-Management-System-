@@ -31,4 +31,10 @@ const documentUpload = multer({
   limits: { fileSize: 8 * 1024 * 1024 },
 });
 
-module.exports = { documentUpload };
+const knowledgeUpload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: pdfOnlyFilter,
+  limits: { fileSize: 15 * 1024 * 1024 },
+});
+
+module.exports = { documentUpload, knowledgeUpload };
