@@ -14,6 +14,9 @@ A full-stack university ERP portal with role-based modules for Student, Faculty,
 ![Student Dashboard](docs/screenshots/student_dashboard.png)
 *Student portal dashboard*
 
+**🔗 Live Demo:** [student-management-system-one-navy.vercel.app](https://student-management-system-one-navy.vercel.app)
+*(Frontend on Vercel · Backend on Render · Database on MongoDB Atlas)*
+
 ---
 
 ## Architecture
