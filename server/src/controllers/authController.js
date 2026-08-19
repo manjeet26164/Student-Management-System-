@@ -14,8 +14,8 @@ const login = async (req, res) => {
     : { universityId: { $regex: new RegExp(`^${cleanId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") } };
 
   const user = await User.findOne(query);
-  if (!user) {
-    return res.status(401).json({ message: "Invalid credentials. User not found." });
+  if (!user || user.role !== role) {
+    return res.status(401).json({ message: "Invalid credentials" });
   }
   if (!user.isActive) {
     return res.status(401).json({ message: "Account has been deactivated" });
@@ -23,13 +23,7 @@ const login = async (req, res) => {
 
   const isPasswordValid = await user.matchPassword(password);
   if (!isPasswordValid) {
-    return res.status(401).json({ message: "Invalid password. Please check and try again." });
-  }
-
-  if (role && user.role !== role) {
-    return res.status(401).json({
-      message: `This account has the '${user.role.toUpperCase()}' role. Please click the '${user.role.toUpperCase()}' tab above to sign in.`,
-    });
+    return res.status(401).json({ message: "Invalid credentials" });
   }
 
   const token = generateToken(user._id, user.role);

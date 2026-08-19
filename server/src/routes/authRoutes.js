@@ -9,13 +9,12 @@ const router = express.Router();
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === "production" ? 15 : 200,
+  max: 5,
   message: { message: "Too many login attempts. Try again in 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) =>
-    process.env.NODE_ENV !== "production" ||
-    (process.env.NODE_ENV === "test" && req.headers["x-test-bypass-ratelimit"] === "true"),
+  // Only skip rate limiting when the test explicitly requests a bypass
+  skip: (req) => req.headers["x-test-bypass-ratelimit"] === "true",
 });
 
 router.post("/login", loginLimiter, validate(loginSchema), login);
