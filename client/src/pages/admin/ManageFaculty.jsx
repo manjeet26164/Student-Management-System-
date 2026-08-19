@@ -155,39 +155,41 @@ const ManageFaculty = () => {
 
       <section className="panel">
         <h2>Faculty Records</h2>
-        <table className="erp-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Employee ID</th>
-              <th>Department</th>
-              <th>Designation</th>
-              <th>Assigned Subjects</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {faculties.map((faculty) => (
-              <tr key={faculty._id}>
-                <td>{faculty.user?.fullName}</td>
-                <td>{faculty.employeeId}</td>
-                <td>{faculty.department}</td>
-                <td>{faculty.designation}</td>
-                <td>{(faculty.assignedSubjects || []).map((subject) => subject.code).join(", ") || "-"}</td>
-                <td>
-                  <div className="row-actions">
-                    <button className="btn-outline" type="button" onClick={() => onEdit(faculty)}>
-                      Edit
-                    </button>
-                    <button className="btn-danger" type="button" onClick={() => onDelete(faculty._id)}>
-                      Delete
-                    </button>
-                  </div>
-                </td>
+        <div className="table-responsive">
+          <table className="erp-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Employee ID</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Assigned Subjects</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {faculties.map((faculty) => (
+                <tr key={faculty._id}>
+                  <td>{faculty.user?.fullName}</td>
+                  <td>{faculty.employeeId}</td>
+                  <td>{faculty.department}</td>
+                  <td>{faculty.designation}</td>
+                  <td>{(faculty.assignedSubjects || []).map((subject) => subject.code).join(", ") || "-"}</td>
+                  <td>
+                    <div className="row-actions">
+                      <button className="btn-outline" type="button" onClick={() => onEdit(faculty)}>
+                        Edit
+                      </button>
+                      <button className="btn-danger" type="button" onClick={() => onDelete(faculty._id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <PaginationControls pagination={pagination} onPageChange={setPage} />
       </section>
     </div>

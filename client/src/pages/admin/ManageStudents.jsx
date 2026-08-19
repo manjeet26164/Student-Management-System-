@@ -164,39 +164,41 @@ const ManageStudents = () => {
 
       <section className="panel">
         <h2>Student Records</h2>
-        <table className="erp-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Roll No.</th>
-              <th>Branch</th>
-              <th>Semester</th>
-              <th>Phone</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student) => (
-              <tr key={student._id}>
-                <td>{student.user?.fullName}</td>
-                <td>{student.rollNumber}</td>
-                <td>{student.branch}</td>
-                <td>{student.semester}</td>
-                <td>{student.personalInfo?.phone || "-"}</td>
-                <td>
-                  <div className="row-actions">
-                    <button className="btn-outline" type="button" onClick={() => onEdit(student)}>
-                      Edit
-                    </button>
-                    <button className="btn-danger" type="button" onClick={() => onDelete(student._id)}>
-                      Delete
-                    </button>
-                  </div>
-                </td>
+        <div className="table-responsive">
+          <table className="erp-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Roll No.</th>
+                <th>Branch</th>
+                <th>Semester</th>
+                <th>Phone</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {students.map((student) => (
+                <tr key={student._id}>
+                  <td>{student.user?.fullName}</td>
+                  <td>{student.rollNumber}</td>
+                  <td>{student.branch}</td>
+                  <td>{student.semester}</td>
+                  <td>{student.personalInfo?.phone || "-"}</td>
+                  <td>
+                    <div className="row-actions">
+                      <button className="btn-outline" type="button" onClick={() => onEdit(student)}>
+                        Edit
+                      </button>
+                      <button className="btn-danger" type="button" onClick={() => onDelete(student._id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );

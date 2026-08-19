@@ -40,42 +40,44 @@ const FacultyDocuments = () => {
       <p className="muted">Verify uploaded PDFs. Student sees Verified only after your approval.</p>
       {message ? <p className="form-message success">{message}</p> : null}
 
-      <table className="erp-table">
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Roll Number</th>
-            <th>Document</th>
-            <th>Status</th>
-            <th>File</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {documents.map((doc) => (
-            <tr key={doc._id}>
-              <td>{doc.student?.user?.fullName}</td>
-              <td>{doc.student?.rollNumber}</td>
-              <td>{DOC_LABELS[doc.docType] || doc.docType}</td>
-              <td>{doc.status}</td>
-              <td>
-                <a className="table-link" href={`${serverBase}${doc.fileUrl}`} target="_blank" rel="noreferrer">
-                  Open PDF
-                </a>
-              </td>
-              <td>
-                {doc.status === "pending" ? (
-                  <button className="btn-primary" type="button" onClick={() => onVerify(doc._id)}>
-                    Verify
-                  </button>
-                ) : (
-                  <span className="status-badge verified">Verified</span>
-                )}
-              </td>
+      <div className="table-responsive">
+        <table className="erp-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Roll Number</th>
+              <th>Document</th>
+              <th>Status</th>
+              <th>File</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {documents.map((doc) => (
+              <tr key={doc._id}>
+                <td>{doc.student?.user?.fullName}</td>
+                <td>{doc.student?.rollNumber}</td>
+                <td>{DOC_LABELS[doc.docType] || doc.docType}</td>
+                <td>{doc.status}</td>
+                <td>
+                  <a className="table-link" href={`${serverBase}${doc.fileUrl}`} target="_blank" rel="noreferrer">
+                    Open PDF
+                  </a>
+                </td>
+                <td>
+                  {doc.status === "pending" ? (
+                    <button className="btn-primary" type="button" onClick={() => onVerify(doc._id)}>
+                      Verify
+                    </button>
+                  ) : (
+                    <span className="status-badge verified">Verified</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 };

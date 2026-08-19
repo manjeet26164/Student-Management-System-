@@ -31,22 +31,33 @@ const roleMenus = {
   ],
 };
 
-const Sidebar = () => {
+const Sidebar = ({ mobileOpen, onClose }) => {
   const { user, logout } = useAuth();
   const menus = roleMenus[user?.role] || [];
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${mobileOpen ? "mobile-open" : ""}`}>
       <div>
-        <div className="brand-block">
-          <span className="brand-top">UNIVERSITY</span>
-          <h2>ERP Portal</h2>
+        <div className="sidebar-header">
+          <div className="brand-block">
+            <span className="brand-top">UNIVERSITY</span>
+            <h2>ERP Portal</h2>
+          </div>
+          <button
+            type="button"
+            className="mobile-close-btn"
+            onClick={onClose}
+            aria-label="Close navigation"
+          >
+            ✕
+          </button>
         </div>
         <nav className="side-nav">
           {menus.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={onClose}
               className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
             >
               {item.label}
@@ -56,7 +67,14 @@ const Sidebar = () => {
       </div>
 
       <div className="sidebar-footer">
-        <button type="button" className="btn-outline sidebar-logout" onClick={logout}>
+        <button
+          type="button"
+          className="btn-outline sidebar-logout"
+          onClick={() => {
+            if (onClose) onClose();
+            logout();
+          }}
+        >
           Logout
         </button>
       </div>

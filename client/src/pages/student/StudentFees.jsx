@@ -29,28 +29,30 @@ const StudentFees = () => {
 
       <section className="panel">
         <h3>Semester Fee Breakdown</h3>
-        <table className="erp-table">
-          <thead>
-            <tr>
-              <th>Semester</th>
-              <th>Total</th>
-              <th>Paid</th>
-              <th>Status</th>
-              <th>Due Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fees.records.map((fee) => (
-              <tr key={fee._id}>
-                <td>{fee.semester}</td>
-                <td>{fee.totalAmount}</td>
-                <td>{fee.paidAmount}</td>
-                <td>{fee.status}</td>
-                <td>{new Date(fee.dueDate).toLocaleDateString()}</td>
+        <div className="table-responsive">
+          <table className="erp-table">
+            <thead>
+              <tr>
+                <th>Semester</th>
+                <th>Total</th>
+                <th>Paid</th>
+                <th>Status</th>
+                <th>Due Date</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {fees.records.map((fee) => (
+                <tr key={fee._id}>
+                  <td>{fee.semester}</td>
+                  <td>{fee.totalAmount}</td>
+                  <td>{fee.paidAmount}</td>
+                  <td>{fee.status}</td>
+                  <td>{new Date(fee.dueDate).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <h3>Transaction History</h3>
         <div className="list-rows">

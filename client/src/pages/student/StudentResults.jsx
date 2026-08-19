@@ -131,28 +131,30 @@ const StudentResults = () => {
               Download PDF
             </button>
           </div>
-          <table className="erp-table">
-            <thead>
-              <tr>
-                <th>Subject Code</th>
-                <th>Subject Name</th>
-                <th>Credits</th>
-                <th>Grade</th>
-                <th>Marks</th>
-              </tr>
-            </thead>
-            <tbody>
-              {semester.subjects.map((subject, idx) => (
-                <tr key={`${subject.subjectCode}-${idx}`}>
-                  <td>{subject.subjectCode}</td>
-                  <td>{subject.subjectName}</td>
-                  <td>{subject.credits}</td>
-                  <td>{subject.grade}</td>
-                  <td>{subject.marks}</td>
+          <div className="table-responsive">
+            <table className="erp-table">
+              <thead>
+                <tr>
+                  <th>Subject Code</th>
+                  <th>Subject Name</th>
+                  <th>Credits</th>
+                  <th>Grade</th>
+                  <th>Marks</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {semester.subjects.map((subject, idx) => (
+                  <tr key={`${subject.subjectCode}-${idx}`}>
+                    <td>{subject.subjectCode}</td>
+                    <td>{subject.subjectName}</td>
+                    <td>{subject.credits}</td>
+                    <td>{subject.grade}</td>
+                    <td>{subject.marks}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       ))}
     </div>

@@ -71,37 +71,39 @@ const ManageSubjects = () => {
 
       <section className="panel">
         <h2>Subject List</h2>
-        <table className="erp-table">
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Name</th>
-              <th>Credits</th>
-              <th>Semester</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {subjects.map((subject) => (
-              <tr key={subject._id}>
-                <td>{subject.code}</td>
-                <td>{subject.name}</td>
-                <td>{subject.credits}</td>
-                <td>{subject.semester}</td>
-                <td>
-                  <div className="row-actions">
-                    <button className="btn-outline" type="button" onClick={() => increaseCredits(subject)}>
-                      + Credit
-                    </button>
-                    <button className="btn-danger" type="button" onClick={() => onDelete(subject._id)}>
-                      Delete
-                    </button>
-                  </div>
-                </td>
+        <div className="table-responsive">
+          <table className="erp-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Credits</th>
+                <th>Semester</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {subjects.map((subject) => (
+                <tr key={subject._id}>
+                  <td>{subject.code}</td>
+                  <td>{subject.name}</td>
+                  <td>{subject.credits}</td>
+                  <td>{subject.semester}</td>
+                  <td>
+                    <div className="row-actions">
+                      <button className="btn-outline" type="button" onClick={() => increaseCredits(subject)}>
+                        + Credit
+                      </button>
+                      <button className="btn-danger" type="button" onClick={() => onDelete(subject._id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <PaginationControls pagination={pagination} onPageChange={setPage} />
       </section>
     </div>

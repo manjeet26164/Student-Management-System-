@@ -49,30 +49,32 @@ const AiSearchPanel = () => {
       {results ? (
         <div className="ai-results">
           <p className="muted">{results.count} student(s) found</p>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>University ID</th>
-                <th>Branch</th>
-                <th>Semester</th>
-                <th>CGPA</th>
-                <th>Backlogs</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.students.map((s) => (
-                <tr key={s._id}>
-                  <td>{s.user?.fullName}</td>
-                  <td>{s.user?.universityId}</td>
-                  <td>{s.branch}</td>
-                  <td>{s.semester}</td>
-                  <td>{s.cgpa}</td>
-                  <td>{s.backlogs}</td>
+          <div className="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>University ID</th>
+                  <th>Branch</th>
+                  <th>Semester</th>
+                  <th>CGPA</th>
+                  <th>Backlogs</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {results.students.map((s) => (
+                  <tr key={s._id}>
+                    <td>{s.user?.fullName}</td>
+                    <td>{s.user?.universityId}</td>
+                    <td>{s.branch}</td>
+                    <td>{s.semester}</td>
+                    <td>{s.cgpa}</td>
+                    <td>{s.backlogs}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : null}
     </section>

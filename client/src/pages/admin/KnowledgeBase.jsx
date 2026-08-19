@@ -96,50 +96,52 @@ const KnowledgeBase = () => {
 
       <section className="panel">
         <h2>Rulebook Documents</h2>
-        <table className="erp-table">
-          <thead>
-            <tr>
-              <th>File</th>
-              <th>Chunks</th>
-              <th>Visible to</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {docs.map((doc) => (
-              <tr key={doc.sourceFile}>
-                <td>{doc.sourceFile}</td>
-                <td>{doc.chunkCount}</td>
-                <td>
-                  <RoleCheckboxes
-                    selected={editRoles[doc.sourceFile] || []}
-                    onChange={(roles) =>
-                      setEditRoles((prev) => ({ ...prev, [doc.sourceFile]: roles }))
-                    }
-                  />
-                </td>
-                <td>
-                  <div className="row-actions">
-                    <button
-                      className="btn-outline"
-                      type="button"
-                      onClick={() => onSaveRoles(doc.sourceFile)}
-                    >
-                      Save Roles
-                    </button>
-                    <button
-                      className="btn-danger"
-                      type="button"
-                      onClick={() => onDelete(doc.sourceFile)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
+        <div className="table-responsive">
+          <table className="erp-table">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Chunks</th>
+                <th>Visible to</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {docs.map((doc) => (
+                <tr key={doc.sourceFile}>
+                  <td>{doc.sourceFile}</td>
+                  <td>{doc.chunkCount}</td>
+                  <td>
+                    <RoleCheckboxes
+                      selected={editRoles[doc.sourceFile] || []}
+                      onChange={(roles) =>
+                        setEditRoles((prev) => ({ ...prev, [doc.sourceFile]: roles }))
+                      }
+                    />
+                  </td>
+                  <td>
+                    <div className="row-actions">
+                      <button
+                        className="btn-outline"
+                        type="button"
+                        onClick={() => onSaveRoles(doc.sourceFile)}
+                      >
+                        Save Roles
+                      </button>
+                      <button
+                        className="btn-danger"
+                        type="button"
+                        onClick={() => onDelete(doc.sourceFile)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );

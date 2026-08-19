@@ -3,16 +3,16 @@ import { useAuth } from "../context/AuthContext";
 import { fetchStudentNotifications } from "../services/studentService";
 import { fetchFacultyNotifications } from "../services/facultyService";
 
-const Topbar = () => {
+const Topbar = ({ onToggleSidebar }) => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem("erp_theme") || "dark");
 
   const date = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
+    weekday: "short",
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   });
 
@@ -45,9 +45,20 @@ const Topbar = () => {
 
   return (
     <header className="topbar">
-      <div>
-        <p className="topbar-label">Academic Session</p>
-        <h1>University Enterprise Portal</h1>
+      <div className="topbar-left">
+        <button
+          type="button"
+          className="mobile-menu-btn"
+          onClick={onToggleSidebar}
+          aria-label="Toggle navigation menu"
+          title="Open Menu"
+        >
+          ☰
+        </button>
+        <div>
+          <p className="topbar-label">Academic Session</p>
+          <h1>University Enterprise Portal</h1>
+        </div>
       </div>
       <div className="topbar-actions">
         <div className="date-chip">{date}</div>
@@ -55,13 +66,19 @@ const Topbar = () => {
           type="button"
           className="theme-btn"
           onClick={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
-          title="Toggle theme"
+          title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         >
-          {theme === "dark" ? "Light" : "Dark"}
+          <span>{theme === "dark" ? "☀️ Light" : "🌙 Dark"}</span>
         </button>
         {hasBell ? (
           <div className="notification-wrap">
-            <button type="button" className="notif-btn" onClick={() => setOpen((prev) => !prev)}>
+            <button
+              type="button"
+              className="notif-btn"
+              onClick={() => setOpen((prev) => !prev)}
+              aria-label="Toggle notifications"
+              title="Notifications"
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6h-1V11a6 6 0 1 0-12 0v5H5a1 1 0 0 0 0 2h14a1 1 0 0 0 0-2Z"

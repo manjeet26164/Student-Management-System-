@@ -11,30 +11,32 @@ const FacultyRecords = () => {
   return (
     <section className="panel">
       <h2>Class Records</h2>
-      <table className="erp-table">
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Subject</th>
-            <th>Present</th>
-            <th>Absent</th>
-            <th>Attendance %</th>
-          </tr>
-        </thead>
-        <tbody>
-          {records.map((row) => (
-            <tr key={row._id}>
-              <td>{row.student?.rollNumber}</td>
-              <td>
-                {row.subject?.code} - {row.subject?.name}
-              </td>
-              <td>{row.present}</td>
-              <td>{row.absent}</td>
-              <td>{row.percentage}</td>
+      <div className="table-responsive">
+        <table className="erp-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Subject</th>
+              <th>Present</th>
+              <th>Absent</th>
+              <th>Attendance %</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {records.map((row) => (
+              <tr key={row._id}>
+                <td>{row.student?.rollNumber}</td>
+                <td>
+                  {row.subject?.code} - {row.subject?.name}
+                </td>
+                <td>{row.present}</td>
+                <td>{row.absent}</td>
+                <td>{row.percentage}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 };
