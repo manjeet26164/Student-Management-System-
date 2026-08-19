@@ -4,23 +4,29 @@ import { loginRequest, meRequest } from "../services/authService";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem("erp_user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
-      const token = localStorage.getItem("erp_token");
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
       try {
         const data = await meRequest();
         setUser(data.user);
+        localStorage.setItem("erp_user", JSON.stringify(data.user));
       } catch (error) {
-        localStorage.removeItem("erp_token");
-        localStorage.removeItem("erp_user");
+        // If meRequest fails and no token, clean up
+        const token = localStorage.getItem("erp_token");
+        if (!token) {
+          setUser(null);
+          localStorage.removeItem("erp_user");
+        }
       } finally {
         setLoading(false);
       }
@@ -31,9 +37,13 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (payload) => {
     const data = await loginRequest(payload);
-    localStorage.setItem("erp_token", data.token);
-    localStorage.setItem("erp_user", JSON.stringify(data.user));
-    setUser(data.user);
+    if (data.token) {
+      localStorage.setItem("erp_token", data.token);
+    }
+    if (data.user) {
+      localStorage.setItem("erp_user", JSON.stringify(data.user));
+      setUser(data.user);
+    }
     return data;
   };
 

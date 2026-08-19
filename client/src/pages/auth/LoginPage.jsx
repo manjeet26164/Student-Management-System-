@@ -10,16 +10,43 @@ const roleHome = {
   admin: "/admin/dashboard",
 };
 
+const demoUsers = [
+  { role: "student", label: "Student", id: "STU23001", pass: "Student@123" },
+  { role: "faculty", label: "Faculty", id: "FAC2101", pass: "Faculty@123" },
+  { role: "admin", label: "Admin", id: "ADM1001", pass: "Admin@123" },
+];
+
+const isDev = import.meta.env.DEV;
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [role, setRole] = useState("student");
-  const [form, setForm] = useState({ identifier: "", password: "" });
+  const [form, setForm] = useState(() =>
+    isDev ? { identifier: "STU23001", password: "Student@123" } : { identifier: "", password: "" }
+  );
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const handleChange = (event) => {
     setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+  };
+
+  const handleRoleChange = (newRole) => {
+    setRole(newRole);
+    setMessage({ type: "", text: "" });
+    if (isDev) {
+      const demo = demoUsers.find((u) => u.role === newRole);
+      if (demo) {
+        setForm({ identifier: demo.id, password: demo.pass });
+      }
+    }
+  };
+
+  const fillDemo = (demo) => {
+    setRole(demo.role);
+    setForm({ identifier: demo.id, password: demo.pass });
+    setMessage({ type: "", text: "" });
   };
 
   const handleSubmit = async (event) => {
@@ -28,12 +55,21 @@ const LoginPage = () => {
     setMessage({ type: "", text: "" });
 
     try {
-      await login({ ...form, role });
+      await login({
+        identifier: form.identifier.trim(),
+        password: form.password,
+        role,
+      });
       navigate(roleHome[role]);
     } catch (error) {
+      const serverMessage =
+        error.response?.data?.message ||
+        (error.message === "Network Error"
+          ? "Cannot connect to server. Please verify the backend is running on port 5000."
+          : "Unable to login. Check your credentials.");
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Unable to login. Check your credentials.",
+        text: serverMessage,
       });
     } finally {
       setLoading(false);
@@ -75,7 +111,7 @@ const LoginPage = () => {
                 type="button"
                 key={r}
                 className={role === r ? "active" : ""}
-                onClick={() => setRole(r)}
+                onClick={() => handleRoleChange(r)}
               >
                 {r}
               </button>
@@ -105,22 +141,35 @@ const LoginPage = () => {
             />
 
             <button disabled={loading} className="btn-primary auth-submit" type="submit">
-              {loading ? "Signing in..." : "Access Portal"}
+              {loading ? "Signing in..." : `Access ${role.toUpperCase()} Portal`}
             </button>
           </form>
 
           {message.text ? <p className={`form-message ${message.type}`}>{message.text}</p> : null}
 
-          {import.meta.env.DEV ? (
+          {isDev ? (
             <div className="demo-credentials">
-              <p>Demo IDs:</p>
-              <small>Student: STU23001 / Student@123</small>
-              <small>Faculty: FAC2101 / Faculty@123</small>
-              <small>Admin: ADM1001 / Admin@123</small>
+              <p style={{ fontWeight: 600, color: "var(--accent)", marginBottom: "6px" }}>
+                ⚡ One-Click Demo Credentials (Local Dev Only):
+              </p>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {demoUsers.map((demo) => (
+                  <button
+                    key={demo.role}
+                    type="button"
+                    onClick={() => fillDemo(demo)}
+                    className={`tag-btn ${role === demo.role ? "active" : ""}`}
+                    style={{ fontSize: "12px", padding: "6px 10px" }}
+                  >
+                    {demo.label}: {demo.id}
+                  </button>
+                ))}
+              </div>
+              <small style={{ marginTop: "6px" }}>Password for all demo accounts: <code>Role@123</code></small>
             </div>
           ) : (
             <div className="demo-credentials">
-              <small>Forgot your credentials? Contact your university administration office.</small>
+              <small>Forgot your credentials? Contact your university administration branch.</small>
             </div>
           )}
         </section>

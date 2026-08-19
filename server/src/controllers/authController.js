@@ -4,13 +4,18 @@ const generateToken = require("../utils/generateToken");
 const login = async (req, res) => {
   const { identifier, password, role } = req.body;
 
-  const query = identifier.includes("@")
-    ? { email: identifier.toLowerCase() }
-    : { universityId: identifier };
+  if (!identifier || !password) {
+    return res.status(400).json({ message: "Please provide credentials" });
+  }
+
+  const cleanId = identifier.trim();
+  const query = cleanId.includes("@")
+    ? { email: cleanId.toLowerCase() }
+    : { universityId: { $regex: new RegExp(`^${cleanId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") } };
 
   const user = await User.findOne(query);
-  if (!user || user.role !== role) {
-    return res.status(401).json({ message: "Invalid credentials" });
+  if (!user) {
+    return res.status(401).json({ message: "Invalid credentials. User not found." });
   }
   if (!user.isActive) {
     return res.status(401).json({ message: "Account has been deactivated" });
@@ -18,21 +23,27 @@ const login = async (req, res) => {
 
   const isPasswordValid = await user.matchPassword(password);
   if (!isPasswordValid) {
-    return res.status(401).json({ message: "Invalid credentials" });
+    return res.status(401).json({ message: "Invalid password. Please check and try again." });
+  }
+
+  if (role && user.role !== role) {
+    return res.status(401).json({
+      message: `This account has the '${user.role.toUpperCase()}' role. Please click the '${user.role.toUpperCase()}' tab above to sign in.`,
+    });
   }
 
   const token = generateToken(user._id, user.role);
-
   const isProduction = process.env.NODE_ENV === "production";
 
   res.cookie("erp_token", token, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "none" : "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, 
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   return res.json({
+    token,
     user: {
       id: user._id,
       fullName: user.fullName,
@@ -49,7 +60,7 @@ const logout = (req, res) => {
   res.clearCookie("erp_token", {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "none" : "strict",
+    sameSite: isProduction ? "none" : "lax",
   });
   return res.json({ message: "Logged out" });
 };
