@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchStudentNotifications } from "../services/studentService";
 import { fetchFacultyNotifications } from "../services/facultyService";
 
 const Topbar = ({ onToggleSidebar }) => {
   const { user } = useAuth();
+  const location = useLocation();
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem("erp_theme") || "dark");
+  const notifRef = useRef(null);
 
   const date = new Date().toLocaleDateString("en-US", {
     weekday: "short",
@@ -15,6 +18,38 @@ const Topbar = ({ onToggleSidebar }) => {
     month: "short",
     day: "numeric",
   });
+
+  // Close notifications on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  // Click outside and Escape key handler
+  useEffect(() => {
+    if (!open) return;
+
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -71,12 +106,13 @@ const Topbar = ({ onToggleSidebar }) => {
           <span>{theme === "dark" ? "☀️ Light" : "🌙 Dark"}</span>
         </button>
         {hasBell ? (
-          <div className="notification-wrap">
+          <div className="notification-wrap" ref={notifRef}>
             <button
               type="button"
-              className="notif-btn"
+              className={`notif-btn ${open ? "active" : ""}`}
               onClick={() => setOpen((prev) => !prev)}
               aria-label="Toggle notifications"
+              aria-expanded={open}
               title="Notifications"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -88,18 +124,25 @@ const Topbar = ({ onToggleSidebar }) => {
               {notifications.length ? <span className="notif-count">{notifications.length}</span> : null}
             </button>
             {open ? (
-              <div className="notif-popover">
-                <h4>Notifications</h4>
-                {notifications.length ? (
-                  notifications.map((item, index) => (
-                    <article key={`${item.title}-${index}`} className={`notif-item ${item.type || "info"}`}>
-                      <strong>{item.title}</strong>
-                      <p>{item.message}</p>
-                    </article>
-                  ))
-                ) : (
-                  <p className="muted">No notifications</p>
-                )}
+              <div className="notif-popover" role="region" aria-label="Notifications list">
+                <div className="notif-popover-header">
+                  <h4>Notifications</h4>
+                  {notifications.length ? (
+                    <span className="notif-badge">{notifications.length}</span>
+                  ) : null}
+                </div>
+                <div className="notif-list">
+                  {notifications.length ? (
+                    notifications.map((item, index) => (
+                      <article key={`${item.title}-${index}`} className={`notif-item ${item.type || "info"}`}>
+                        <strong>{item.title}</strong>
+                        <p>{item.message}</p>
+                      </article>
+                    ))
+                  ) : (
+                    <p className="muted notif-empty">No notifications</p>
+                  )}
+                </div>
               </div>
             ) : null}
           </div>
